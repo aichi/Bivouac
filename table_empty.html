@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Basecamp Calendar to PDF</title>
+        <meta charset="utf-8" />
+        <style type="text/css">
+
+
+            body, table {
+                font-family: "Lucida Grande",verdana,arial,helvetica,sans-serif;
+                font-size: 11px;
+                margin: 0;
+                padding: 0;
+            }
+
+
+
+            td {
+                text-align: left;
+                background-color: white;
+            }
+
+            #mainTable {
+                table-layout: fixed;
+                width: 100%;
+                border-spacing: 0;
+                border-color: gray;
+                border-width: 0;
+                border-style: solid;
+                border-collapse: collapse
+            }
+
+            #mainTable thead td {
+                text-align:  center;
+                font-weight:  bold;
+                font-size:  14px;
+            }
+
+            #mainTable tbody  {
+                border-right:  1px solid #CCC;
+            }
+
+
+            #mainTable tbody td {
+                border-left: 1px solid #CCC;
+                font-size: 11px;
+                padding: 0;
+                vertical-align: top;
+                border-bottom:  1px solid #CCC;
+                width: 14.285%;
+                min-height: 60px;
+            }
+
+
+
+            #mainTable thead td {
+                border-bottom:  1px solid #CCC;
+            }
+
+            /**** EVENTS ****/
+
+
+            div.oneDayEvent {
+                margin-bottom: 4px;
+            }
+
+            div.oneDayEvent ul {
+                margin: 0 0 0 0px;
+                padding: 0 0 0 18px;
+
+            }
+
+            div.multiDayEvent{
+                height: 16px;
+                background-color: #1D64AD;
+                overflow: hidden;
+                /*width: 200%;*/
+                position: relative;
+
+            }
+
+            div.eventStart {
+                -webkit-border-top-left-radius: 10px;
+                -webkit-border-bottom-left-radius: 10px;
+                -moz-border-radius-topleft: 10px;
+                -moz-border-radius-bottomleft: 10px;
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+
+            div.eventEnd {
+                -webkit-border-top-right-radius: 10px;
+                -webkit-border-bottom-right-radius: 10px;
+                -moz-border-radius-topright: 10px;
+                -moz-border-radius-bottomright: 10px;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+
+            div.multiDayEvent .event {
+                padding: 1px 6px 0 6px;
+                color: white;
+                font-size: 11px;
+                overflow:  hidden;
+
+            }
+
+            div.empty {
+                height: 88px;
+            }
+
+            div.spacer {
+                height: 52px;
+            }
+
+            div.tinySpacer {
+                height: 32px;
+            }
+
+            div.multiDayEventSpacer {
+                height: 16px;
+                margin-bottom: 4px;
+            }
+
+
+            .dateLabel {
+                text-align: right;
+                margin: 0 4px 4px 0;
+            }
+
+            .weekend {
+                background-color: #F7F7F7;
+            }
+
+            .today {
+                background-color: #FFC;
+            }
+
+            .bold {
+                font-weight: bold;
+            }
+
+        </style>
+    </head>
+    <body>
+
+    <script type="text/php">
+    //API doc: http://eclecticgeek.com/dompdf/docs/api/dompdf/PDFLib_Adapter.html#methodadd_object
+    if ( isset($pdf) ) {
+
+      $font = Font_Metrics::get_font("verdana");;
+      $size = 6;
+      $color = array(0,0,0);
+      $text_height = Font_Metrics::get_font_height($font, $size);
+
+      $foot = $pdf->open_object();
+
+      $w = $pdf->get_width();
+      $h = $pdf->get_height();
+
+      // Draw a line along the bottom
+      $y = $h - $text_height - 24;
+      //$pdf->line(16, $y, $w - 16, $y, $color, 0.5);//linka nad patickou
+
+      $pdf->close_object();
+      $pdf->add_object($foot, "all");
+
+      $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+
+      // Center the text
+      $width = Font_Metrics::get_text_width("Page 1 of 2", $font, $size);
+      $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
+
+    }
+    </script>
+
+
+
+    <table id="mainTable" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <td>Mon</td>
+                    <td>Tue</td>
+                    <td>Wed</td>
+                    <td>Thu</td>
+                    <td>Fri</td>
+                    <td>Sat</td>
+                    <td>Sun</td>
+                </tr>
+            </thead>
+            <tbody>
+                $$$REPLACE$$$
+            </tbody>
+        </table>
+
+
+
+    </body>
+</html>

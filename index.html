@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Basecamp Calendar to PDF</title>
+        <meta charset="utf-8" />
+        <script src="./js/jak.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            function generatePDF() {
+                var frame = JAK.cel('iframe');
+                frame.width =  frame.height = 0;
+                frame.src = './generatePDF.php?project=' + JAK.gel('projects').value;
+
+                document.body.appendChild(frame);
+            };
+        </script>
+    </head>
+    <body>
+        <div id="content">
+            <label for="projects"><span>Projekt:</span><select name="projects" id="projects"><option>Načítám data...</option></select></label>
+            <script type="text/javascript">
+                var sel = JAK.gel('projects'),
+                    req = new JAK.Request(JAK.Request.TEXT),
+                    projectsCallback = function(resp, status) {
+                        var k,
+                            opt,
+                            data = JSON && JSON.parse ? JSON.parse(resp) : eval(resp);
+
+                        //delete dummy text from select node
+                        sel.length = 0;
+
+                        for (k in data) {
+                            opt = JAK.cel('option');
+                            opt.value = k;
+                            opt.appendChild(JAK.ctext(data[k]));
+                            sel.appendChild(opt);
+                        }
+
+                    };
+
+                req.setCallback(this, projectsCallback);
+                req.send("./projects.php");
+            </script>
+            <label for="projects"><span>Od:</span><input type="text" name="from" id="from" /></label>
+            <label for="projects"><span>Do:</span><input type="text" name="to" id="to" /></label>
+            <input type="button" value="Vygenerovat PDF" onclick="generatePDF();" />
+        </div>
+    </body>
+</html>
