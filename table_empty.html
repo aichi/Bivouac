@@ -3,23 +3,33 @@
 <html>
     <head>
         <title>Basecamp Calendar to PDF</title>
-        <meta charset="utf-8" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <style type="text/css">
 
 
             body, table {
-                font-family: "Lucida Grande",verdana,arial,helvetica,sans-serif;
+                font-family: $$$GLOBAL_FONT$$$;
                 font-size: 11px;
                 margin: 0;
                 padding: 0;
             }
 
-
+            table {
+               /* margin-top: 120px; /*doplnit programove, zavisi na vysce zahlavi!!!*/
+            }
 
             td {
                 text-align: left;
                 background-color: white;
             }
+
+            #header {
+                position:fixed;
+                top:0;
+                width: 100%;
+            }
+
+            $$$GENERATED_STYLE$$$
 
             #mainTable {
                 table-layout: fixed;
@@ -75,10 +85,14 @@
                 height: 16px;
                 background-color: #1D64AD;
                 overflow: hidden;
-                /*width: 200%;*/
+                margin-bottom: 4px;
                 position: relative;
 
             }
+
+
+
+
 
             div.eventStart {
                 -webkit-border-top-left-radius: 10px;
@@ -87,6 +101,8 @@
                 -moz-border-radius-bottomleft: 10px;
                 border-top-left-radius: 10px;
                 border-bottom-left-radius: 10px;
+                /*border-bottom: none;
+                border-right: 20px solid green;*/
             }
 
             div.eventEnd {
@@ -96,6 +112,8 @@
                 -moz-border-radius-bottomright: 10px;
                 border-top-right-radius: 10px;
                 border-bottom-right-radius: 10px;
+                /*border-bottom: none;
+                border-left: 20px solid red;*/
             }
 
             div.multiDayEvent .event {
@@ -148,34 +166,42 @@
     <script type="text/php">
     //API doc: http://eclecticgeek.com/dompdf/docs/api/dompdf/PDFLib_Adapter.html#methodadd_object
     if ( isset($pdf) ) {
+        $color = array(0.001,0,0); //jaky je format? pokud jsou 3x0 tak to bere posledn ibarvu, pokud je tu cokoli jineho renderuje to cernou i jine zakladni barvy
+        //$color = "#ff0000";
 
-      $font = Font_Metrics::get_font("verdana");;
-      $size = 6;
-      $color = array(0,0,0);
-      $text_height = Font_Metrics::get_font_height($font, $size);
+        $w = $pdf->get_width();
+        $h = $pdf->get_height();
 
-      $foot = $pdf->open_object();
+        //paticka
+        if (GENERATE_FOOTER) {
+            $font = Font_Metrics::get_font(defined('FOOTER_FONT') ? FOOTER_FONT : "verdana");
+            $size = defined('FOOTER_FONT_SIZE') ? FOOTER_FONT_SIZE : 6;
+            $text_height = Font_Metrics::get_font_height($font, $size);
 
-      $w = $pdf->get_width();
-      $h = $pdf->get_height();
 
-      // Draw a line along the bottom
-      $y = $h - $text_height - 24;
-      //$pdf->line(16, $y, $w - 16, $y, $color, 0.5);//linka nad patickou
+            $foot = $pdf->open_object();
 
-      $pdf->close_object();
-      $pdf->add_object($foot, "all");
+            // Draw a line along the bottom
+            $y = $h - $text_height - 24;
+            //$pdf->line(16, $y, $w - 16, $y, $color, 0.5);//linka nad patickou
 
-      $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+            $pdf->close_object();
+            $pdf->add_object($foot, "all");
 
-      // Center the text
-      $width = Font_Metrics::get_text_width("Page 1 of 2", $font, $size);
-      $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
+            $text = "Page {PAGE_NUM} of {PAGE_COUNT}";
+
+            // Center the text
+            $width = Font_Metrics::get_text_width("Page 1 of 2", $font, $size);
+            $pdf->page_text($w / 2 - $width / 2, $y, $text, $font, $size, $color);
+        }
 
     }
     </script>
 
-
+    <div id="header">
+        <img id="header_image" src="$$$IMG_SRC$$$" />
+        <span id="header_text">$$$HEADER_TEXT$$$</span>
+    </div>
 
     <table id="mainTable" cellspacing="0" cellpadding="0">
             <thead>
@@ -190,7 +216,7 @@
                 </tr>
             </thead>
             <tbody>
-                $$$REPLACE$$$
+                $$$TABLE_BODY$$$
             </tbody>
         </table>
 

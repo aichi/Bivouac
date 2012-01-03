@@ -2,48 +2,141 @@
 
 <html>
     <head>
-        <title>Basecamp Calendar to PDF</title>
+        <title>Bivouac - Basecamp Calendar to PDF converter</title>
         <meta charset="utf-8" />
         <script src="./js/jak.js" type="text/javascript"></script>
+        <script src="./js/calendar.js" type="text/javascript"></script>
+        <script src="./js/calendarsetup.js" type="text/javascript"></script>
+        <script src="./js/timekeeper.js" type="text/javascript"></script>
+        <script src="./js/interpolator.js" type="text/javascript"></script>
+        <link href="css/bivouac.css" rel="stylesheet" />
+        <link href="css/calendar.css" rel="stylesheet" />
         <script type="text/javascript">
-            function generatePDF() {
-                var frame = JAK.cel('iframe');
-                frame.width =  frame.height = 0;
-                frame.src = './generatePDF.php?project=' + JAK.gel('projects').value;
-
-                document.body.appendChild(frame);
+            //calendar setup
+            var calendar_setup = {
+                defaultFormat: ["Y/n/j"],
+                today: "Today",
+                translations: {
+                    holdForMenu: "(long press for menu)",
+                    prevYear: "Previous year",
+                    prevMonth: "Previous month",
+                    nextMonth: "Next month",
+                    nextYear: "Next year",
+                    helpBtn: "Help",
+                    close: "Close",
+                    pickDate: "Pick date"
+                },
+                dayNames: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+                monthNames: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
             };
         </script>
     </head>
     <body>
         <div id="content">
-            <label for="projects"><span>Projekt:</span><select name="projects" id="projects"><option>Načítám data...</option></select></label>
+            <label for="projects"><span>Project:</span><select name="projects" id="projects"><option>Loading data...</option></select></label>
+
+            <label for="projects"><span>From:</span><input type="text" name="from" id="from" /></label>
             <script type="text/javascript">
-                var sel = JAK.gel('projects'),
-                    req = new JAK.Request(JAK.Request.TEXT),
-                    projectsCallback = function(resp, status) {
-                        var k,
-                            opt,
-                            data = JSON && JSON.parse ? JSON.parse(resp) : eval(resp);
-
-                        //delete dummy text from select node
-                        sel.length = 0;
-
-                        for (k in data) {
-                            opt = JAK.cel('option');
-                            opt.value = k;
-                            opt.appendChild(JAK.ctext(data[k]));
-                            sel.appendChild(opt);
-                        }
-
-                    };
-
-                req.setCallback(this, projectsCallback);
-                req.send("./projects.php");
+                JAK.Calendar.setup("./img/calendar_icon.gif", "[pick date]", calendar_setup, "from");
             </script>
-            <label for="projects"><span>Od:</span><input type="text" name="from" id="from" /></label>
-            <label for="projects"><span>Do:</span><input type="text" name="to" id="to" /></label>
-            <input type="button" value="Vygenerovat PDF" onclick="generatePDF();" />
+            <label for="projects"><span>To:</span><input type="text" name="to" id="to" /></label>
+            <script type="text/javascript">
+                JAK.Calendar.setup("./img/calendar_icon.gif", "[pick date]", calendar_setup, "to");
+            </script>
+            <input type="button" value="Generate PDF" onclick="generatePDF();" />
         </div>
+
+        <div id="setup">
+            <label for="show"><input type="checkbox" name="show" id="show" /><span>Preview PDF instead of downloading</span></label><br />
+            <label for="html"><input type="checkbox" name="html" id="html" /><span>Preview HTML instead of PDF</span></label>
+
+            <div id="toogleButton"></div>
+        </div>
+
+        <script type="text/javascript">
+            var frame = null,
+                htmlCheckbox = JAK.gel('html'),
+                showCheckbox = JAK.gel('show'),
+                htmlChecked = false,
+                showChecked = false,
+                generatePDF = function() {
+                    //var DEBUG = htmlCheckbox.checked ? '&displayPDF'
+
+                    if (frame)
+                        document.body.removeChild(frame);
+
+                    frame = JAK.cel('iframe');
+                    if (showChecked) {
+                        frame.width = "1000px;";
+                        frame.height = "500px;";
+                    } else {
+                        frame.width =  frame.height = 0;
+                    }
+
+                    frame.src = './generatePDF.php?project=' + JAK.gel('projects').value +
+                                '&from=' + JAK.gel('from').value + '&to=' + JAK.gel('to').value +
+                                '&showPDF=' + (showChecked ? 1 : 0) + '&showHTML=' + (htmlChecked ? 1 : 0);
+
+                    document.body.appendChild(frame);
+                },
+                sel = JAK.gel('projects'),
+                req = new JAK.Request(JAK.Request.TEXT),
+                projectsCallback = function(resp, status) {
+                    var k,
+                        opt,
+                        data = JSON && JSON.parse ? JSON.parse(resp) : eval(resp);
+
+                    //delete dummy text from select node
+                    sel.length = 0;
+
+                    for (k in data) {
+                        opt = JAK.cel('option');
+                        opt.value = k;
+                        opt.appendChild(JAK.ctext(data[k]));
+                        sel.appendChild(opt);
+                    }
+
+                },
+                toogleShowCheckbox = function(e, elm){
+                    htmlCheckbox.disabled = !elm.checked;
+                    showChecked = elm.checked;
+                    //html disabled, than uncheck it
+                    if (htmlCheckbox.disabled) {
+                        htmlCheckbox.checked = false;
+                        htmlChecked = false;
+                    }
+                },
+                toogleHtmlCheckbox = function(e, elm){
+                    htmlChecked = elm.checked;
+                },
+                height = 50,
+                div = JAK.gel('setup'),
+                hidden = false,
+                toogleClick = function() {
+                    var ci = new JAK.CSSInterpolator(div, 100, {});
+                    if (!hidden) {
+                        ci.addProperty('top', 0, -height, 'px');
+                    } else {
+                        ci.addProperty('top', -height, 0, 'px');
+                    }
+                    hidden = !hidden;
+                    ci.start();
+                };
+
+            //requesting projects
+            req.setCallback(this, projectsCallback);
+            req.send("./projects.php");
+
+
+            //advanced menu checkboxes
+            JAK.Events.addListener(showCheckbox,'change', window, toogleShowCheckbox);
+            toogleShowCheckbox({}, showCheckbox);
+            JAK.Events.addListener(htmlCheckbox,'change', window, toogleHtmlCheckbox);
+
+            //showing advanced menu
+            JAK.Events.addListener(JAK.gel('toogleButton'),'click', window, toogleClick);
+            toogleClick();
+        </script>
     </body>
 </html>

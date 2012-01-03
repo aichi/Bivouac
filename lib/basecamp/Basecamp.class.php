@@ -1444,6 +1444,7 @@ class Basecamp {
    * get calendar entries for a project
    *
    * @param int $project_id
+   * @param int $page
    * @param string $filter_type
    * possible values:
    * <ul>
@@ -1453,9 +1454,12 @@ class Basecamp {
    * </ul>
    * @return array response content
    */
-  public function getCalendarEntriesForProject($project_id, $filter_type='all', $format=null) {
+  public function getCalendarEntriesForProject($project_id, $page=1, $filter_type='all', $format=null) {
     if(!preg_match('!^\d+$!',$project_id))
       throw new InvalidArgumentException("project id must be a number.");
+
+   if(!preg_match('!^\d+$!',$page) && $page > 0)
+      throw new InvalidArgumentException("page must be a positive number.");
 
     $filter_type = strtolower($filter_type);
         if(!in_array($filter_type,array('all','milestones','events')))
@@ -1467,7 +1471,7 @@ class Basecamp {
     } else if ($filter_type == 'events') {
         $url .= "/calendar_events";
     }
-    $url .= ".xml";
+    $url .= ".xml?page=".(int)$page;
     return $this->processRequest($url,"GET",$format);
   }
 
