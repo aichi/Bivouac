@@ -1,7 +1,7 @@
 <?php
 header('Content-type: application/json');
 require('./lib/basecamp/Basecamp.class.php');
-require('./credentials.php');
+require('./config.php');
 
 
 $basecamp = new Basecamp(URL, USER, PASSWD);
