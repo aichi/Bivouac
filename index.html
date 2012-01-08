@@ -48,6 +48,10 @@
         </div>
 
         <div id="setup">
+            <strong>Page size and orientation</strong><br />
+            <label for="pageSize"><span class="left">Page size</span><select name="pageSize" id="pageSize"><option>a4</option><option>letter</option><option>a3</option></select></label><br />
+            <label for="orientation"><span class="left">Orientation</span><select name="orientation" id="orientation"><option>landscape</option><option>portrait</option></select></label><br />
+            <strong>Debugging:</strong><br />
             <label for="show"><input type="checkbox" name="show" id="show" /><span>Preview PDF instead of downloading</span></label><br />
             <label for="html"><input type="checkbox" name="html" id="html" /><span>Preview HTML instead of PDF</span></label>
 
@@ -76,7 +80,8 @@
 
                     frame.src = './generatePDF.php?project=' + JAK.gel('projects').value +
                                 '&from=' + JAK.gel('from').value + '&to=' + JAK.gel('to').value +
-                                '&showPDF=' + (showChecked ? 1 : 0) + '&showHTML=' + (htmlChecked ? 1 : 0);
+                                '&showPDF=' + (showChecked ? 1 : 0) + '&showHTML=' + (htmlChecked ? 1 : 0) +
+                                '&pageSize=' + JAK.gel('pageSize').value + '&orientation=' + JAK.gel('orientation').value;
 
                     document.body.appendChild(frame);
                 },
@@ -110,7 +115,7 @@
                 toogleHtmlCheckbox = function(e, elm){
                     htmlChecked = elm.checked;
                 },
-                height = 50,
+                height = 120, //same height as in bivouac.css
                 div = JAK.gel('setup'),
                 hidden = false,
                 toogleClick = function() {

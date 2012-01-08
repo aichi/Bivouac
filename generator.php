@@ -92,6 +92,19 @@ class CalendarGenerator {
      */
     protected $showHTML = false;
 
+    /**
+     * Page size.
+     * @see CPDF_Adapter::$PAPER_SIZES
+     * @var string
+     */
+    protected $pageSize = 'a4';
+
+    /**
+     * Paper orientation, possible values are landscape and portrait
+     * @var string
+     */
+    protected $orientation = 'landscape';
+
 
     /**
      * Constructor, argument is project id
@@ -100,7 +113,7 @@ class CalendarGenerator {
      * @param bool $showPDF if true than don't send application/pdf header
      * @param bool $showHTML if true than show generated HTML instead of PDF
      */
-    public function __construct($projectID, Basecamp $basecamp, $showPDF, $showHTML) {
+    public function __construct($projectID, Basecamp $basecamp, $showPDF, $showHTML, $pageSize, $orientation) {
         $this->projectID = $projectID;
         $this->basecamp = $basecamp;
 
@@ -110,6 +123,8 @@ class CalendarGenerator {
 
         $this->showPDF = $showPDF;
         $this->showHTML = $showHTML;
+        $this->pageSize = $pageSize;
+        $this->orientation = $orientation;
     }
 
     /**
@@ -450,8 +465,9 @@ class CalendarGenerator {
             $color = "black";
             $size = defined('HEADER_FONT_SIZE') ? (int)HEADER_FONT_SIZE : 24;
 
+            $imgy = 0;//default value if there is no logo
             $max_image_size = LOGO_HEIGHT;
-            if (defined('HEADER_LOGO')) {
+            if (defined('HEADER_LOGO') && is_file(HEADER_LOGO)) {
                 $imginfo = getimagesize(HEADER_LOGO);   // 0=x, 1=y
                 if ($imginfo[0] > 0 && $imginfo[1] > 0) {
                     $ratio = $imginfo[0] / $imginfo[1];
@@ -506,11 +522,10 @@ class CalendarGenerator {
         /**
          * PDF Renderer.
          */
-        require('./lib/dompdf/dompdf_config.inc.php');
         $dompdf = new DOMPDF();
         //$dompdf->load_html(file_get_contents('table2.html'));
         $dompdf->load_html($htmlInput);
-        $dompdf->set_paper('a4', 'landscape');//portrait - landscape
+        $dompdf->set_paper($this->pageSize, $this->orientation);
         $dompdf->render();
         $dompdf->stream("calendar.pdf", array("Attachment" => !$this->showPDF)); //true means download
     }

@@ -22,11 +22,20 @@ body {
 
 #setup {
     position: absolute;
-    height: 50px;
+    height: 120px;
     width: 300px;
     top: 0;
     right: 0;
 
+}
+
+#setup label span.left {
+    width: 100px;
+    display: inline-block;
+}
+
+#setup label select {
+    width: 150px;
 }
 
 #setup #toogleButton {
