@@ -19,5 +19,10 @@ define("FOOTER_FONT", '"Lucida Grande",verdana,arial,helvetica,sans-serif');
 
 define("FONT", '"Lucida Grande",verdana,arial,helvetica,sans-serif');
 
+//rendering options
+define("SHOW_ENGLISH_TIME", true); //English: 1pm, otherwise: 13:00
+define("SHORTEN_LAST_NAME", true);  //if true than John Doe become to John D
+
+//timezone in which we render inputed data
 define("TIME_ZONE", "Europe/Prague");
 ?>

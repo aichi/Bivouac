@@ -1,10 +1,11 @@
 <?php
+set_time_limit(0);
+
 require("./config.php");
 require('./lib/basecamp/Basecamp.class.php');
 require('./lib/dompdf/dompdf_config.inc.php');
 require('./generator.php');
 
-;
 
 // Getting variables from request
 $projectID = (int)$_GET['project'];

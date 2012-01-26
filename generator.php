@@ -198,6 +198,7 @@ class CalendarGenerator {
             $a['type'] = (string)$entry->type[0];
             $a['title'] = (string)$entry->title[0];
             $a['responsive'] = (string)$entry->$resp;
+            $a['completed'] = (string)$entry->completed == "true";
 
             $start = strtotime((string)$entry->$sa);
             $end = strtotime((string)$entry->$da);
@@ -283,7 +284,7 @@ class CalendarGenerator {
 
             $day['actualTime'] = $actualTime;
             $day['midnight'] = $midnight;
-            $day['dayLabel'] = (date('j', $actualTime) == 1 ? date('M', $actualTime) : '') . ' ' .date('j', $actualTime);
+            $day['dayLabel'] = (date('j', $actualTime) == 1 || $i == 0 ? date('M', $actualTime) : '') . ' ' .date('j', $actualTime);
             $day['firstDayInMonth'] = date('j', $actualTime) == 1;
             $day['dayInWeek'] = date('N', $actualTime); //1..7
             $day['oneDayEvents'] = array();
@@ -323,8 +324,15 @@ class CalendarGenerator {
                 //found some event started at particular date (cell)
                 if ($entry['start_at'] >= $dayCell['actualTime'] && $entry['start_at'] <= $dayCell['midnight']) {
                     $event = array();
-                    $event['name'] = $entry['title'] . ($entry['type'] == 'Milestone' ? ' - '.$entry['responsive'] : '');
+                    $event['name'] = $entry['title'];
                     $event['entry'] = $entry;
+
+                    //event time
+                    $event['time'] = SHOW_ENGLISH_TIME ?
+                        (date('g', $entry['start_at']) .
+                        (date("i", $entry['start_at'] == 0) ? "" : ":".date('i', $entry['start_at'])).
+                        date("a", $entry['start_at'])) :
+                        date("H:i", $entry['start_at']);
 
                     //oneday
                     if ($entry['start_at'] == $entry['due_at']) {
@@ -398,8 +406,10 @@ class CalendarGenerator {
     }
 
     //TODO: fix when event is begining before our render plan but ends up in the plan - valid for multiday events only
-    //TODO: improve rendering long events to start/end in days which are get by user and not on Monday/Sunday
+    //TODO: improve rendering long events to start/end in days which are given by user and not on previous Sunday or next Monday
     //TODO: both is possible to done by modyfing start/due date of events during parsing XML (isn't it possible to pass this dates to server?)
+
+    //TODO: render milestones above events
 
 
     /**
@@ -437,7 +447,20 @@ class CalendarGenerator {
 
             for ($m = 0; $m < count($dayCells[$i]['oneDayEvents']); $m++) {
                 $event = $dayCells[$i]['oneDayEvents'][$m];
-                $tbody .= '<div class="event oneDayEvent"><ul><li>'.$event['name'].'</li></ul></div>';
+
+                $name = $event['entry']['responsive'];
+                $meta = "";
+                $meta .= $event['entry']['type'] == 'Milestone' ? " - ".
+                        (SHORTEN_LAST_NAME && mb_strpos($name, " ") !== false ? mb_substr($name, 0, mb_strpos($name, " ")+3 < mb_strlen($name) ? mb_strpos($name, " ")+2 : mb_strlen($name))."." : $name)
+                        : '';
+                $meta .= $event['time'] ? ' '.$event['time'] : '';
+
+                if (strlen($meta)>0) {
+                    $meta = '<span class="metaInformation">'.$meta.'</span>';
+                }
+
+                $name = '<span class="'.($event['entry']['completed'] ? 'completed' : '').'">'.$event['name'].'</span>';
+                $tbody .= '<div class="event oneDayEvent"><ul><li class="'.($event['entry']['type'] == 'Milestone' ? 'milestone' : 'event').'">'.$name.$meta.'</li></ul></div>';
             }
 
             $tbody .= '<div class="'.($j + $k + $m == 0 ? 'empty' : 'tinySpacer').'"></div>';

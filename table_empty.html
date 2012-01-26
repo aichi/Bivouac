@@ -68,6 +68,31 @@
                 border-bottom:  1px solid #CCC;
             }
 
+            ul {
+                list-style-type: none;
+                padding: 0;
+            }
+
+            li {
+                margin-right: 5px;
+            }
+
+            li span.completed {
+                text-decoration: line-through;
+            }
+
+            ul li.event:before {
+                content: "• ";
+            }
+
+            ul li.milestone:before {
+                content: "√ ";
+            }
+
+
+
+
+
             /**** EVENTS ****/
 
 
@@ -158,6 +183,12 @@
             .bold {
                 font-weight: bold;
             }
+
+            .metaInformation {
+                color: #666666;
+                font-size: 9px;
+            }
+
 
         </style>
     </head>
